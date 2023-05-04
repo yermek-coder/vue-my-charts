@@ -66,12 +66,12 @@ export function generateLinesData() {
 
 export function generateWhiskerData() {
     const rand = d3.randomNormal();
-    const titles = ["Title 1", "Title 2", "Title 3"];
-    const data = d3.range(3).map(function (n) {
+    const titles = ["Title 1", "Title 2", "Title 3", "Title 4"];
+    const data = d3.range(4).map(function (n) {
         return {
             title: titles[n],
             points: d3
-                .range(30)
+                .range(6)
                 .map((_) => parseInt(rand() * 100) / 100 + n * 0.1)
                 .sort(d3.ascending),
             firmDot: n - Math.random(),

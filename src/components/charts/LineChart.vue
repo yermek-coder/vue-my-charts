@@ -19,16 +19,8 @@
 
     const chartRef = ref(null);
 
-    onMounted(() => {
-        renderChart();
-    });
-
-    watch(
-        () => [props.data, props.point],
-        () => {
-            renderChart();
-        }
-    );
+    onMounted(renderChart);
+    watch(() => [props.data, props.point], renderChart);
 
     function renderChart() {
         const svg = d3.select(chartRef.value);

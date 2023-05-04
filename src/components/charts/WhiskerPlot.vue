@@ -11,18 +11,10 @@
     });
 
     const svgRef = ref(null);
-    const margin = { top: 20, right: 20, bottom: 20, left: 60 };
+    const margin = { top: 20, right: 60, bottom: 20, left: 60 };
 
-    watch(
-        () => props.data,
-        () => {
-            renderChart();
-        }
-    );
-
-    onMounted(function () {
-        renderChart();
-    });
+    watch(() => props.data, renderChart);
+    onMounted(renderChart);
 
     function renderChart() {
         const width = svgRef.value.clientWidth - margin.left - margin.right;
@@ -34,8 +26,13 @@
 
         const { data } = props;
         const stats = data.map(function (d) {
+            // console.log("d.paon = ", d);
             return boxplotStats(d.points);
         });
+
+        console.log("stats", stats);
+
+        const median = d3.median(stats.map((stat) => stat.boxes[0].end));
 
         const colors = d3.schemeCategory10;
 
@@ -67,30 +64,69 @@
             .showInnerDots(false)
             .scale(scale)
             .bandwidth(0)
-            .boxwidth(12)
+            .boxwidth(42)
             .key((d) => d.points);
 
         root.select("g.plots")
-            .attr("transform", "translate(" + [margin.left, margin.top] + ")")
+            .attr(
+                "transform",
+                "translate(" + [margin.left + 90, margin.top] + ")"
+            )
             .selectAll(".plot")
             .data(stats)
             .join("g")
             .attr("class", "plot")
             .attr("transform", (_, i) => `translate(${[0, band(i)]})`)
             .attr("color", (_, i) => colors[(i / 1) | 0])
-            .call(plot);
-
-        root.append("g")
-            .attr("style", "transform: translateY(" + [margin.top + 5] + "px)")
-            .selectAll("text")
-            .data(data.map((item) => item.title))
-            .join("text")
-            .attr("class", "title")
-            .attr("transform", (_, i) => `translate(${[0, band(i)]})`)
-            .attr("fill", "black")
+            .call(plot)
+            .each(function (d, i) {
+                d3.select(this)
+                    .selectAll("text")
+                    .data([
+                        d.points.find((n) => !n.outlier).value,
+                        d.points.reverse().find((n) => !n.outlier).value,
+                    ])
+                    .join("text")
+                    .text(function (d) {
+                        return d.toFixed(2);
+                    })
+                    .attr(
+                        "style",
+                        (_, i2) =>
+                            `text-anchor: ${i2 % 2 === 0 ? "end" : "start"}`
+                    )
+                    .attr("fill", (_) => colors[(i / 1) | 0])
+                    .attr(
+                        "transform",
+                        (d, i2) =>
+                            `translate(${[
+                                scale(d) + (i2 % 2 === 0 ? -5 : 5),
+                                6,
+                            ]})`
+                    );
+            })
+            .append("text")
             .text(function (d) {
-                return d;
-            });
+                return d.boxes[0].end.toFixed(2);
+            })
+            .attr("style", "text-anchor: middle")
+            .attr("fill", (_, i) => colors[(i / 1) | 0])
+            .attr(
+                "transform",
+                (d, i) => `translate(${[scale(d.boxes[0].end), -25]})`
+            );
+
+        // root.append("g")
+        //     .attr("style", "transform: translateY(" + [margin.top + 5] + "px)")
+        //     .selectAll("text")
+        //     .data(data.map((item) => item.title))
+        //     .join("text")
+        //     .attr("class", "title")
+        //     .attr("transform", (_, i) => `translate(${[0, band(i)]})`)
+        //     .attr("fill", "black")
+        //     .text(function (d) {
+        //         return d;
+        //     });
 
         // titles
         root.append("g")
@@ -100,7 +136,8 @@
             .join("text")
             .attr("class", "title")
             .attr("transform", (_, i) => `translate(${[0, band(i)]})`)
-            .attr("fill", "black")
+            // .attr("fill", "black")
+            .attr("fill", (_, i) => colors[(i / 1) | 0])
             .text(function (d) {
                 return d;
             });
@@ -108,7 +145,11 @@
         // your firm dots
         root.append("g")
             .classed("firm-dots", true)
-            .attr("style", "transform: translateY(" + [margin.top] + "px)")
+            // .attr("style", "transform: translateY(" + [margin.top] + "px)")
+            .attr(
+                "style",
+                "transform: translate(150px, " + [margin.top] + "px)"
+            )
             .selectAll("circle")
             .data(data.map((item) => item.firmDot))
             .join("circle")
@@ -118,6 +159,7 @@
             .attr("stroke", "black")
             .attr("cy", (_, i) => band(i))
             .attr("cx", (d) => scale(d));
+
         root.select("g.firm-dots")
             .selectAll("text")
             .data(data.map((item) => item.firmDot))
@@ -125,8 +167,19 @@
             .attr("y", (_, i) => band(i))
             .attr("x", (d) => scale(d))
             .attr("style", `transform: translate(${-10}px, ${-10}px)`)
-            .attr("fill", "black")
-            .text((_, i) => `Firm ${i}`);
+            .attr("fill", "black");
+        // .text((_, i) => `Firm ${i}`);
+
+        // median line
+        root.select(".plots")
+            .append("line")
+            .classed("median", true)
+            .attr("stroke", "black")
+            .attr("style", "stroke-dasharray: 5, 5")
+            .attr("x1", scale(median) - 3)
+            .attr("y1", -20)
+            .attr("x2", scale(median) + 3)
+            .attr("y2", height - 40);
     }
 </script>
 
