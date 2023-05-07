@@ -3,6 +3,8 @@
 
     import LineChart from "./components/charts/LineChart.vue";
     import WhiskerPlot from "./components/charts/WhiskerPlot.vue";
+    import PricingAccount from "./components/charts/PricingAccount.vue";
+    import PricingAccount2 from "./components/charts/PricingAccount2.vue";
     import {
         generateLinesData,
         generateWhiskerData,
@@ -17,23 +19,24 @@
         lineChartPoint.value = point;
     };
 
-    const whiskerData = ref(generateWhiskerData());
+    // const whiskerData = ref(generateWhiskerData());
 
     updateLines();
 </script>
 
 <template>
-    <main>
-        <button @click="updateLines">Update LineChart</button>
+    <main class="container bg-secondary bg-opacity-25">
+        <!-- <button @click="updateLines">Update LineChart</button>
         <div class="graph">
             <LineChart :data="lineChartData" :point="lineChartPoint" />
         </div>
 
         <button @click="whiskerData = generateWhiskerData()">
             Update Whisker Plot Chart
-        </button>
-        <div class="graph">
-            <WhiskerPlot :data="whiskerData" />
+        </button> -->
+        <div class="row">
+            <!-- <PricingAccount /> -->
+            <PricingAccount2 />
         </div>
     </main>
 </template>
@@ -42,8 +45,5 @@
     .graph {
         width: 600px;
         height: 400px;
-    }
-    main > * {
-        display: block;
     }
 </style>

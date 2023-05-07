@@ -1,5 +1,5 @@
 <script setup>
-    import { watch, ref, defineProps, onMounted } from "vue";
+    import { watch, ref, onMounted, nextTick } from "vue";
     import * as d3 from "d3";
     import { boxplot, boxplotStats } from "d3-boxplot";
 
@@ -11,12 +11,20 @@
     });
 
     const svgRef = ref(null);
-    const margin = { top: 20, right: 60, bottom: 20, left: 60 };
+    const margin = { top: 30, right: 40, bottom: 0, left: 70 };
 
-    watch(() => props.data, renderChart);
+    watch(
+        () => [props.data, props.data.length],
+        async () => {
+            await nextTick();
+            renderChart();
+        }
+    );
     onMounted(renderChart);
 
     function renderChart() {
+        if (!props.data.length) return;
+
         const width = svgRef.value.clientWidth - margin.left - margin.right;
         const height = svgRef.value.clientHeight - margin.top - margin.bottom;
 
@@ -27,10 +35,8 @@
         const { data } = props;
         const stats = data.map(function (d) {
             // console.log("d.paon = ", d);
-            return boxplotStats(d.points);
+            return boxplotStats(d.dots);
         });
-
-        console.log("stats", stats);
 
         const median = d3.median(stats.map((stat) => stat.boxes[0].end));
 
@@ -38,13 +44,14 @@
 
         function getDomain(arr) {
             return arr
-                .map((item) => item.points)
+                .map((item) => item.dots)
                 .flat()
                 .reduce(
                     function (acc, val) {
-                        const min = Math.min(acc[0], val);
+                        // const min = Math.min(acc[0], val);
                         const max = Math.max(acc[1], val);
-                        return [min, max];
+                        // return [min, max];
+                        return [0, max];
                     },
                     [Infinity, -Infinity]
                 );
@@ -87,13 +94,12 @@
                         d.points.reverse().find((n) => !n.outlier).value,
                     ])
                     .join("text")
+                    .style("font-size", "10px")
                     .text(function (d) {
                         return d.toFixed(2);
                     })
-                    .attr(
-                        "style",
-                        (_, i2) =>
-                            `text-anchor: ${i2 % 2 === 0 ? "end" : "start"}`
+                    .style("text-anchor", (_, i2) =>
+                        i2 % 2 === 0 ? "end" : "start"
                     )
                     .attr("fill", (_) => colors[(i / 1) | 0])
                     .attr(
@@ -101,7 +107,7 @@
                         (d, i2) =>
                             `translate(${[
                                 scale(d) + (i2 % 2 === 0 ? -5 : 5),
-                                6,
+                                4,
                             ]})`
                     );
             })
@@ -109,24 +115,13 @@
             .text(function (d) {
                 return d.boxes[0].end.toFixed(2);
             })
-            .attr("style", "text-anchor: middle")
+            .style("font-size", "10px")
+            .style("text-anchor", "middle")
             .attr("fill", (_, i) => colors[(i / 1) | 0])
             .attr(
                 "transform",
                 (d, i) => `translate(${[scale(d.boxes[0].end), -25]})`
             );
-
-        // root.append("g")
-        //     .attr("style", "transform: translateY(" + [margin.top + 5] + "px)")
-        //     .selectAll("text")
-        //     .data(data.map((item) => item.title))
-        //     .join("text")
-        //     .attr("class", "title")
-        //     .attr("transform", (_, i) => `translate(${[0, band(i)]})`)
-        //     .attr("fill", "black")
-        //     .text(function (d) {
-        //         return d;
-        //     });
 
         // titles
         root.append("g")
@@ -151,7 +146,7 @@
                 "transform: translate(150px, " + [margin.top] + "px)"
             )
             .selectAll("circle")
-            .data(data.map((item) => item.firmDot))
+            .data(data.map((item) => item.bps))
             .join("circle")
             .attr("r", 4)
             .attr("class", "firm")
@@ -160,31 +155,25 @@
             .attr("cy", (_, i) => band(i))
             .attr("cx", (d) => scale(d));
 
-        root.select("g.firm-dots")
-            .selectAll("text")
-            .data(data.map((item) => item.firmDot))
-            .join("text")
-            .attr("y", (_, i) => band(i))
-            .attr("x", (d) => scale(d))
-            .attr("style", `transform: translate(${-10}px, ${-10}px)`)
-            .attr("fill", "black");
-        // .text((_, i) => `Firm ${i}`);
-
         // median line
         root.select(".plots")
             .append("line")
             .classed("median", true)
             .attr("stroke", "black")
-            .attr("style", "stroke-dasharray: 5, 5")
-            .attr("x1", scale(median) - 3)
+            .style("stroke-dasharray", "5, 5")
+            .attr("x1", scale(median))
             .attr("y1", -20)
-            .attr("x2", scale(median) + 3)
-            .attr("y2", height - 40);
+            .attr("x2", scale(median))
+            .attr("y2", height - 20);
     }
 </script>
 
 <template>
-    <svg ref="svgRef" style="width: 100%; height: 100%">
+    <svg
+        ref="svgRef"
+        style="width: 100%"
+        :style="{ height: `${90 * data.length + 1}px` }"
+    >
         <g :transform="'translate(' + margin.left + ',' + margin.top + ')'"></g>
     </svg>
 </template>
