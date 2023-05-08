@@ -22,6 +22,8 @@
     );
     onMounted(renderChart);
 
+    const example = ref();
+
     function renderChart() {
         if (!props.data.length) return;
 
@@ -37,6 +39,8 @@
             // console.log("d.paon = ", d);
             return boxplotStats(d.dots);
         });
+
+        example.value = stats;
 
         const median = d3.median(stats.map((stat) => stat.boxes[0].end));
 
@@ -153,7 +157,7 @@
             .attr("fill", (_, i) => colors[(i / 1) | 0])
             .attr("stroke", "black")
             .attr("cy", (_, i) => band(i))
-            .attr("cx", (d) => scale(d));
+            .attr("cx", (d) => scale(d) + 10);
 
         // median line
         root.select(".plots")
