@@ -126,11 +126,11 @@
 </template>
 
 <script setup>
-    import { computed, onMounted, watch } from "vue";
+    import { computed, onMounted } from "vue";
     import { ref } from "vue";
     import account_data from "./account_data";
     import WhiskerPlot from "./WhiskerPlot.vue";
-    import * as d3 from "d3";
+    import { bisectCenter, median } from "d3";
 
     const MAX_ACCOUNTS = 6;
 
@@ -168,13 +168,12 @@
         activeAccounts.value.reduce((a, b) => Math.max(a, b.bps), -Infinity)
     );
 
-    const graphData = ref([]);
-    function calculate() {
-        const accountsPlot = activeAccounts.value.map((acc) => {
+    const accountsPlot = computed(() =>
+        activeAccounts.value.map((acc) => {
             const servicesByTitle = services.value.filter(
                 (serv) => serv.service === acc.service
             );
-            const index = d3.bisectCenter(
+            const index = bisectCenter(
                 servicesByTitle.map((serv) => parseInt(serv.bucket)),
                 acc.assets
             );
@@ -190,14 +189,29 @@
                     parseInt(service.percentile_75) + 10,
                 ],
             };
-        });
+        })
+    );
 
+    function compressBps() {
+        accountsPlot.value.forEach((acc, i) => {
+            const [min, , , , max] = acc.dots;
+            if (min > accounts.value[i].bps || max < accounts.value[i].bps)
+                accounts.value[i].bps = [min, max][
+                    bisectCenter([min, max], accounts.value[i].bps)
+                ];
+        });
+    }
+
+    const graphData = ref([]);
+    function calculate() {
+        compressBps();
         const totalPercentiles = [1, 2, 3].map(
             (i) =>
                 (activeAccounts.value
                     .map(
                         (item, i2) =>
-                            item.assets * (accountsPlot[i2].dots[i] / 10000)
+                            item.assets *
+                            (accountsPlot.value[i2].dots[i] / 10000)
                     )
                     .reduce((a, b) => a + b, 0) /
                     activeAccounts.value
@@ -214,9 +228,9 @@
                     ...totalPercentiles,
                     totalPercentiles[totalPercentiles.length - 1] + 10,
                 ],
-                bps: d3.median(activeAccounts.value.map((item) => item.bps)),
+                bps: median(activeAccounts.value.map((item) => item.bps)),
             },
-            ...accountsPlot,
+            ...accountsPlot.value,
         ];
     }
 

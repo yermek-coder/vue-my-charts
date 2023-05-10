@@ -93,25 +93,22 @@
             .each(function (d, i) {
                 d3.select(this)
                     .selectAll("text")
-                    .data([
-                        d.points.find((n) => !n.outlier).value,
-                        d.points.reverse().find((n) => !n.outlier).value,
-                    ])
+                    .data([d.points[1].value, d.points[3].value])
                     .join("text")
                     .style("font-size", "10px")
                     .text(function (d) {
                         return d.toFixed(2);
                     })
                     .style("text-anchor", (_, i2) =>
-                        i2 % 2 === 0 ? "end" : "start"
+                        i2 % 2 === 0 ? "middle" : "middle"
                     )
                     .attr("fill", (_) => colors[(i / 1) | 0])
                     .attr(
                         "transform",
                         (d, i2) =>
                             `translate(${[
-                                scale(d) + (i2 % 2 === 0 ? -5 : 5),
-                                4,
+                                scale(d) + (i2 % 2 === 0 ? 0 : 0),
+                                -25,
                             ]})`
                     );
             })
