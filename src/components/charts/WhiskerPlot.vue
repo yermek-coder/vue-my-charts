@@ -2,6 +2,7 @@
     import { watch, ref, onMounted, nextTick } from "vue";
     import * as d3 from "d3";
     import { boxplot, boxplotStats } from "d3-boxplot";
+    import WhiskerPlotLegend from "./WhiskerPlotLegend.vue";
 
     const props = defineProps({
         data: {
@@ -11,7 +12,7 @@
     });
 
     const svgRef = ref(null);
-    const margin = { top: 30, right: 40, bottom: 0, left: 70 };
+    const margin = { top: 30, right: 40, bottom: 30, left: 70 };
 
     watch(
         () => [props.data, props.data.length],
@@ -159,13 +160,18 @@
         // median line
         root.select(".plots")
             .append("line")
-            .classed("median", true)
             .attr("stroke", "black")
             .style("stroke-dasharray", "5, 5")
             .attr("x1", scale(median))
             .attr("y1", -20)
             .attr("x2", scale(median))
             .attr("y2", height - 20);
+
+        root.select(".plots")
+            .append("text")
+            .text("Median")
+            .style("text-anchor", "middle")
+            .style("transform", `translate(${scale(median)}px, ${height}px)`);
     }
 </script>
 
@@ -177,4 +183,6 @@
     >
         <g :transform="'translate(' + margin.left + ',' + margin.top + ')'"></g>
     </svg>
+
+    <WhiskerPlotLegend></WhiskerPlotLegend>
 </template>

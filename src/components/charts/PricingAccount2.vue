@@ -122,6 +122,10 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-12 mt-3 d-flex justify-content-end">
+            <button @click="print" class="btn btn-link">Print Results</button>
+        </div>
     </div>
 </template>
 
@@ -276,4 +280,8 @@
             },
         ];
     });
+
+    function print() {
+        window.print();
+    }
 </script>
