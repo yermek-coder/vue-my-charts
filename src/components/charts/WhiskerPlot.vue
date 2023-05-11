@@ -179,7 +179,7 @@
     <svg
         ref="svgRef"
         style="width: 100%"
-        :style="{ height: `${90 * data.length + 1}px` }"
+        :style="{ height: `${105 * data.length + 1}px` }"
     >
         <g :transform="'translate(' + margin.left + ',' + margin.top + ')'"></g>
     </svg>

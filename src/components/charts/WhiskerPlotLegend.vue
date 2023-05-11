@@ -64,12 +64,27 @@
             .attr("x", 170)
             .attr("y", 35)
             .text("Your Firm");
+
+        // bps
+        root.select("g")
+            .append("rect")
+            .attr("x", 250)
+            .attr("y", 0)
+            .attr("width", 40)
+            .attr("height", 20)
+            .style("fill", "grey");
+        root.select("g")
+            .append("text")
+            .style("font-size", "14px")
+            .attr("x", 270)
+            .attr("y", 35)
+            .text("100 bps");
     }
 </script>
 
 <template>
     <div class="d-flex justify-content-center">
-        <svg ref="svgRef" style="width: 240px; height: 3rem">
+        <svg ref="svgRef" style="width: 320px; height: 3rem">
             <g></g>
         </svg>
     </div>
