@@ -1,5 +1,5 @@
 <template>
-    <svg style="width: 100%; height: 100%" ref="chartRef"></svg>
+    <svg style="width: 100%; height: 250px" ref="chartRef"></svg>
 </template>
 
 <script setup>
@@ -28,7 +28,7 @@
 
         const width = parseInt(chartRef.value.clientWidth, 10);
         const height = parseInt(chartRef.value.clientHeight, 10);
-        const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+        const margin = { top: 20, right: 20, bottom: 20, left: 30 };
         const chartWidth = width - margin.left - margin.right;
         const chartHeight = height - margin.top - margin.bottom;
 
@@ -93,7 +93,16 @@
                 "transform",
                 `translate(${margin.left}, ${margin.top + chartHeight})`
             )
-            .call(d3.axisBottom(xScale));
+            .call(d3.axisBottom(xScale))
+            .selectAll("text")
+            .each(function (d, i) {
+                const max = 15000000;
+                if (d >= max) {
+                    d3.select(this).text(`$${d / 1000000}M`);
+                } else {
+                    d3.select(this).text(d);
+                }
+            });
 
         // add y axis
         svg.append("g")
@@ -130,8 +139,8 @@
             .attr("cx", (d) => xScale(d.x))
             .attr("cy", (d) => yScale(d.y))
             .attr("r", 4)
-            .attr("fill", "black")
-            .attr("stroke", "white")
+            .attr("fill", "#008ffb")
+            .attr("stroke", "#008ffb")
             .attr("stroke-width", 2);
     }
 </script>

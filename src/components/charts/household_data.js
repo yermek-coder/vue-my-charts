@@ -1,0 +1,92 @@
+export default [
+    {
+        bucket: "5000",
+        percentile_25: "0",
+        percentile_50: "68",
+        percentile_75: "112",
+    },
+    {
+        bucket: "25000",
+        percentile_25: "60",
+        percentile_50: "108",
+        percentile_75: "138",
+    },
+    {
+        bucket: "50000",
+        percentile_25: "79",
+        percentile_50: "115",
+        percentile_75: "144",
+    },
+    {
+        bucket: "100000",
+        percentile_25: "83",
+        percentile_50: "109",
+        percentile_75: "140",
+    },
+    {
+        bucket: "150000",
+        percentile_25: "83",
+        percentile_50: "109",
+        percentile_75: "142",
+    },
+    {
+        bucket: "250000",
+        percentile_25: "86",
+        percentile_50: "109",
+        percentile_75: "136",
+    },
+    {
+        bucket: "500000",
+        percentile_25: "85",
+        percentile_50: "108",
+        percentile_75: "130",
+    },
+    {
+        bucket: "750000",
+        percentile_25: "87",
+        percentile_50: "105",
+        percentile_75: "125",
+    },
+    {
+        bucket: "1000000",
+        percentile_25: "81",
+        percentile_50: "100",
+        percentile_75: "120",
+    },
+    {
+        bucket: "1500000",
+        percentile_25: "82",
+        percentile_50: "90",
+        percentile_75: "109",
+    },
+    {
+        bucket: "2500000",
+        percentile_25: "78",
+        percentile_50: "81",
+        percentile_75: "94",
+    },
+    {
+        bucket: "5000000",
+        percentile_25: "67",
+        percentile_50: "75",
+        percentile_75: "82",
+    },
+    {
+        bucket: "10000000",
+        percentile_25: "49",
+        percentile_50: "61",
+        percentile_75: "74",
+    },
+    {
+        bucket: "15000000",
+        percentile_25: "34",
+        percentile_50: "49",
+        percentile_75: "60",
+    },
+    {
+        bucket: "25000000",
+        percentile_25: "32",
+        percentile_50: "47",
+        percentile_75: "58",
+    },
+];

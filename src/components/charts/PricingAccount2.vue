@@ -45,20 +45,12 @@
                     </select>
                 </div>
                 <div class="col">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1"
-                            >$</span
-                        >
-                        <input
-                            v-model="account.assets"
-                            type="number"
-                            :max="maxBucket"
-                            min="0"
-                            class="form-control"
-                            aria-describedby="basic-addon1"
-                            required
-                        />
-                    </div>
+                    <CurrencyInput
+                        v-model="account.assets"
+                        :max="maxBucket"
+                        min="0"
+                        required
+                    ></CurrencyInput>
                 </div>
             </div>
 
@@ -80,8 +72,8 @@
                                 type="number"
                                 class="form-control"
                                 aria-describedby="bps"
-                                :max="maxPercentile"
-                                :min="minPercentile"
+                                max="200"
+                                min="0"
                                 required
                             />
                             <span class="input-group-text" id="bps">bps</span>
@@ -105,9 +97,15 @@
             <div class="w-100 p-3 bg-success bg-opacity-50">
                 <div class="row">
                     <div class="col-5">TOTAL</div>
-                    <div class="col-3">$ {{ totalAssets || 0 }}</div>
+                    <div class="col-3">
+                        {{
+                            numToCurrency(
+                                parseFloat(totalAssets || services[0]?.bucket)
+                            )
+                        }}
+                    </div>
                     <div class="col-4">
-                        {{ minBps || 50 }}-{{ maxBps || 65 }} BPS
+                        {{ minPercentile }}-{{ maxPercentile }} BPS
                     </div>
                 </div>
             </div>
@@ -117,8 +115,12 @@
             >
                 <div class="row">
                     <div class="col-5">{{ acc.service }}</div>
-                    <div class="col-3">{{ acc.assets }}</div>
-                    <div v-if="acc.bps" class="col-4">{{ acc.bps }} BPS</div>
+                    <div class="col-3">
+                        {{ numToCurrency(acc.assets || services[0]?.bucket) }}
+                    </div>
+                    <div class="col-4">
+                        {{ acc.bps || graphData[0].bps }} BPS
+                    </div>
                 </div>
             </div>
         </div>
@@ -134,7 +136,8 @@
     import { ref } from "vue";
     import account_data from "./account_data";
     import WhiskerPlot from "./WhiskerPlot.vue";
-    import { bisectCenter, median } from "d3";
+    import CurrencyInput from "./CurrencyInput.vue";
+    import { bisectCenter, median, max, min, sum } from "d3";
 
     const MAX_ACCOUNTS = 6;
 
@@ -146,14 +149,10 @@
         () => services.value[services.value.length - 1].bucket
     );
     const maxPercentile = computed(() =>
-        services.value.reduce((acc, account) => {
-            return Math.max(acc, account.percentile_75 + 10);
-        }, -Infinity)
+        max(services.value.map((service) => service.percentile_75))
     );
     const minPercentile = computed(() =>
-        services.value.reduce((acc, account) => {
-            return Math.min(acc, account.percentile_25 - 10);
-        }, +Infinity)
+        min(services.value.map((service) => service.percentile_25))
     );
 
     const accountsCount = ref(1);
@@ -162,15 +161,25 @@
         accounts.value.slice(0, accountsCount.value)
     );
 
+    function numToCurrency(int) {
+        const options = {
+            style: "currency",
+            currency: "USD",
+            maximumFractionDigits: 0,
+        };
+        const numberFormat = new Intl.NumberFormat("en", options);
+        return numberFormat.format(int);
+    }
     const totalAssets = computed(() =>
-        activeAccounts.value.reduce((a, b) => a + b.assets, 0)
+        sum(activeAccounts.value.map((acc) => acc.assets))
     );
-    const minBps = computed(() =>
-        activeAccounts.value.reduce((a, b) => Math.min(a, b.bps), +Infinity)
-    );
-    const maxBps = computed(() =>
-        activeAccounts.value.reduce((a, b) => Math.max(a, b.bps), -Infinity)
-    );
+
+    // const minBps = computed(() =>
+    //     sum(activeAccounts.value.map((acc) => acc.bps))
+    // );
+    // const maxBps = computed(() =>
+    //     activeAccounts.value.reduce((a, b) => Math.max(a, b.bps), -Infinity)
+    // );
 
     const accountsPlot = computed(() =>
         activeAccounts.value.map((acc) => {
@@ -231,7 +240,7 @@
                     totalPercentiles[0] - 10,
                     ...totalPercentiles,
                     totalPercentiles[totalPercentiles.length - 1] + 10,
-                ],
+                ].map(Math.round),
                 bps: median(activeAccounts.value.map((item) => item.bps)),
             },
             ...accountsPlot.value,

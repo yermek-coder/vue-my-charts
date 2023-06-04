@@ -37,7 +37,6 @@
 
         const { data } = props;
         const stats = data.map(function (d) {
-            // console.log("d.paon = ", d);
             return boxplotStats(d.dots);
         });
 
@@ -98,7 +97,7 @@
                     .join("text")
                     .style("font-size", "10px")
                     .text(function (d) {
-                        return d.toFixed(2);
+                        return d;
                     })
                     .style("text-anchor", (_, i2) =>
                         i2 % 2 === 0 ? "middle" : "middle"
@@ -115,7 +114,7 @@
             })
             .append("text")
             .text(function (d) {
-                return d.boxes[0].end.toFixed(2);
+                return d.boxes[0].end;
             })
             .style("font-size", "10px")
             .style("text-anchor", "middle")
