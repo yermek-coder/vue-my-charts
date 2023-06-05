@@ -46,11 +46,11 @@
         const yScale = d3
             .scaleLinear()
             .domain([
-                0,
-                d3.max(
-                    props.data.flatMap((d) => d.values),
-                    (d) => d.y
-                ),
+                0, 160,
+                // d3.max(
+                //     props.data.flatMap((d) => d.values),
+                //     (d) => d.y
+                // ),
             ])
             .range([chartHeight, 0]);
 
@@ -73,11 +73,11 @@
         const areaYScale = d3
             .scaleLinear()
             .domain([
-                0,
-                d3.max(
-                    props.data.flatMap((d) => d.values),
-                    (d) => d.y
-                ),
+                0, 160,
+                // d3.max(
+                //     props.data.flatMap((d) => d.values),
+                //     (d) => d.y
+                // ),
             ])
             .range([chartHeight + margin.top, margin.top]);
 

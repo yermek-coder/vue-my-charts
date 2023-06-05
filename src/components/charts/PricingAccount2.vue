@@ -217,7 +217,7 @@
 
     const graphData = ref([]);
     function calculate() {
-        compressBps();
+        // compressBps();
         const totalPercentiles = [1, 2, 3].map(
             (i) =>
                 (activeAccounts.value

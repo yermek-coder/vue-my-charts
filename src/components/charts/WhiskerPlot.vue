@@ -63,7 +63,8 @@
 
         const scale = d3
             .scaleLinear()
-            .domain(getDomain(data))
+            .domain([0, 200])
+            // .domain(getDomain(data))
             .range([margin.left, width - margin.left - margin.right]);
 
         const band = d3

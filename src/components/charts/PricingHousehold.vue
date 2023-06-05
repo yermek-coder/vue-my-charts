@@ -55,7 +55,7 @@
                                     aria-label="Recipient's username"
                                     aria-describedby="basic-addon2"
                                     required
-                                    :max="200"
+                                    :max="160"
                                     :min="0"
                                     v-model="selectThree.assetRel"
                                 />
